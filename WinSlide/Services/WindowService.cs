@@ -14,6 +14,12 @@ public class WindowService : IWindowService
     {
         this._services = services;
     }
+
+    public void Close()
+    {
+        _mainWindow = null;
+    }
+
     public void Show()
     {
         // If there is an open window, bring it to the front
