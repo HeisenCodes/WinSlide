@@ -1,8 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Win32;
 using System.IO;
+using System.Text;
 using System.Text.Json;
-using WinSlide.AppSettings;
 using WinSlide.Enums;
 using WinSlide.Interface;
 using WinSlide.Models;
@@ -21,7 +20,7 @@ namespace WinSlide.ViewModels
             this._startupService = startupService;
 
             // Load the current startup setting
-            StartOnStartup = IsAppSetToStartOnStartup();
+            StartOnStartup = startupService.IsAppSetToStartOnStartup();
         }
 
         public bool StartOnStartup
@@ -58,25 +57,25 @@ namespace WinSlide.ViewModels
             }
         }
 
-        private bool IsAppSetToStartOnStartup()
-        {
-            // Check if the app is currently set to start on startup
-            var registryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run");
-            var appPath = registryKey.GetValue("WinSlide")?.ToString();
-            return !string.IsNullOrEmpty(appPath);
-        }
-
         public void SaveSettings()
         {
-            var mySettings = new MySettings
+            var settings = new SettingsModel
             {
                 EdgeThreshold = this.EdgeThreshold,
                 ScrollSensitivity = this.ScrollSensitivity
             };
 
-            var wrapper = new SettingsWrapper(mySettings);
+            string json = JsonSerializer.Serialize(settings,
+                new JsonSerializerOptions { WriteIndented = true });
 
-            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), JsonSerializer.Serialize(wrapper, new JsonSerializerOptions { WriteIndented = true }));
+            string path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+
+            // Write atomically: prevents corrupted files
+            //string tempPath = path + ".tmp";
+
+            File.WriteAllText(path, json, Encoding.UTF8);
+            //File.Copy(tempPath, path, overwrite: true);
+            //File.Delete(tempPath);
         }
     }
 }

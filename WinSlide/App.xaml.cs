@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Hardcodet.Wpf.TaskbarNotification;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
-using WinSlide.AppSettings;
 using WinSlide.Interface;
 using WinSlide.Models;
 using WinSlide.Services;
@@ -14,45 +14,37 @@ namespace WinSlide;
 
 public partial class App : Application
 {
-    // Mutex to ensure a single instance of the app
-    private static Mutex _mutex;
+    private TaskbarIcon notifyIcon;
+
+    private IServiceProvider Services { get; set; }
 
     [STAThread]
     public static void Main(string[] args)
     {
-        // Create a mutex with a unique name (this ensures only one instance is running)
-        bool isNewInstance;
-        _mutex = new Mutex(true, "{E07D58D1-FB24-4697-9834-5B9C86102A6A}", out isNewInstance);
+        using var mutex = new Mutex(true, "{E07D58D1-FB24-4697-9834-5B9C86102A6A}", out bool isNewInstance);
 
-        if (isNewInstance)
+        if (!isNewInstance)
         {
-
-            using IHost host = CreateHostBuilder(args).Build();
-            host.Start();
-
-            // Force creation of the MainModel
-            host.Services.GetRequiredService<MainModel>();
-
-            // Force creation of the tray icon
-            host.Services.GetRequiredService<TrayIconView>();
-
-            App app = new();
-            app.InitializeComponent();
-            app.Run();
-        }
-        else
-        {
-            MessageBox.Show("The application is already running.", "App Already Running", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("The application is already running.");
+            return;
         }
 
+        using IHost host = CreateHostBuilder(args).Build();
+        host.Start();
+
+        App app = new();
+        app.Services = host.Services;      // <-- STORE DI container here
+        host.Services.GetRequiredService<MainModel>(); // Force creation of the MainModel
+
+        app.InitializeComponent();
+        app.Run();
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
-        .ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => { })
         .ConfigureServices((hostContext, services) =>
         {
-            services.AddSingleton<TrayIconView>();
+
             services.AddSingleton<TrayIconViewModel>();
 
             services.AddTransient<MainWindow>();
@@ -63,14 +55,14 @@ public partial class App : Application
             services.AddSingleton<IStartupService, StartupService>();
             services.AddSingleton<IWindowService, WindowService>();
 
-            services.AddOptions<MySettings>()
+            services.AddOptions<SettingsModel>()
                 .Configure(options =>
                 {
                     // HARD DEFAUTS
                     options.EdgeThreshold = 1;
                     options.ScrollSensitivity = Enums.ScrollSensitivity.High;
                 })
-                .Bind(hostContext.Configuration.GetSection("Settings"))
+                .Bind(hostContext.Configuration)
                 .PostConfigure(options =>
                 {
                     // VALIDATION + FALLBACK
@@ -86,4 +78,18 @@ public partial class App : Application
                 }
                 );
         });
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
+        notifyIcon.DataContext = Services.GetRequiredService<TrayIconViewModel>();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        notifyIcon.Dispose(); //the icon would clean up automatically, but this is cleaner
+        base.OnExit(e);
+    }
 }

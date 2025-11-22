@@ -1,25 +1,42 @@
 ﻿using Microsoft.Win32;
-using System.IO;
 using WinSlide.Interface;
 namespace WinSlide.Services;
 
 public class StartupService : IStartupService
 {
     private const string AppName = "WinSlide";
-    private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+    private const string StartupRegistryPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
 
-    public void SetAppToStartOnStartup(bool startOnStartup)
+    public void SetAppToStartOnStartup(bool enable)
     {
-        var registryKey = Registry.CurrentUser.OpenSubKey(StartupRegistryKey, true);
+        using var key = Registry.CurrentUser.OpenSubKey(StartupRegistryPath, writable: true);
 
-        if (startOnStartup)
+        if (key == null)
+            return; // Cannot write — silently ignore.
+
+        if (enable)
         {
-            string exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppName}.exe");
-            registryKey.SetValue(AppName, exePath);
+            // Resolve the full path to the current executable
+            string exePath = Environment.ProcessPath!;
+
+            // Put quotes around path so it works with spaces
+            key.SetValue(AppName, $"\"{exePath}\"", RegistryValueKind.String);
         }
         else
         {
-            registryKey.DeleteValue(AppName, false);
+            key.DeleteValue(AppName, throwOnMissingValue: false);
         }
+    }
+
+    public bool IsAppSetToStartOnStartup()
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(StartupRegistryPath, writable: false);
+
+        if (key?.GetValue(AppName) is string value)
+        {
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        return false;
     }
 }

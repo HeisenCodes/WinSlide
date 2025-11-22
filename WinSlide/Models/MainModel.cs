@@ -3,7 +3,6 @@ using Gma.System.MouseKeyHook;
 using Microsoft.Extensions.Options;
 using System.Drawing;
 using System.Windows.Forms;
-using WinSlide.AppSettings;
 using WinSlide.Enums;
 namespace WinSlide.Models;
 
@@ -19,7 +18,7 @@ public class MainModel : IDisposable
 
     private IKeyboardMouseEvents _globalMouseHook;
 
-    public MainModel(IOptions<MySettings> settings)
+    public MainModel(IOptions<SettingsModel> settings)
     {
         // Restore settings
         _edgeThreshold = settings.Value.EdgeThreshold;
