@@ -11,6 +11,9 @@
 	<Platforms>AnyCPU;x86</Platforms>
 	<InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.Extensions.Configuration.Binder.SourceGeneration</InterceptorsNamespaces>
 	<ApplicationIcon>Icons\icon.ico</ApplicationIcon>
+	<Authors>Heisen</Authors>
+	<FileVersion>1.0.0</FileVersion>
+	<Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
