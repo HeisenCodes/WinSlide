@@ -8,7 +8,7 @@ namespace WinSlide.Models;
 
 public class MainModel : IDisposable
 {
-    public int _edgeThreshold = 1; // pixels from bottom considered "at edge"
+    private int _edgeThreshold_dpi_scaled; // distance from bottom considered "at edge"
     public ScrollSensitivity _scrollSenstivity = ScrollSensitivity.High;
     private int _cumulativeDelta = 0; // Track cumulative scroll movements
     private int? _lastNotchDelta = null; // Track the previous notch delta (up/down)
@@ -20,15 +20,16 @@ public class MainModel : IDisposable
 
     public MainModel(IOptions<SettingsModel> settings)
     {
-        // Restore settings
-        _edgeThreshold = settings.Value.EdgeThreshold;
-        _scrollSenstivity = settings.Value.ScrollSensitivity;
-
-        // Cache DPI scaling factor using Graphics class for DPI-aware calculations
+        // Get DPI scaling factor
         dpiScale = GetDpiScale();
 
-        // Cache screen height considering DPI scaling
-        screenHeight = (int)(Screen.PrimaryScreen.Bounds.Height * dpiScale); // Physical pixels adjusted for DPI scaling
+        // Restore settings
+        EdgeThreshold = settings.Value.EdgeThreshold;
+        _scrollSenstivity = settings.Value.ScrollSensitivity;
+
+        // Cache screen height 
+        screenHeight = Screen.PrimaryScreen.Bounds.Height; // Physical pixels adjusted for DPI scaling
+
 
         // Initialize the global mouse hook
         _globalMouseHook = Hook.GlobalEvents();
@@ -37,10 +38,30 @@ public class MainModel : IDisposable
         _globalMouseHook.MouseWheel += GlobalMouseHook_MouseWheel;
     }
 
+    public int EdgeThreshold
+    {
+        get => field;
+        set
+        {
+            field = value;
+            _edgeThreshold_dpi_scaled = (int)(value * dpiScale);
+        }
+    }
+
+    // Method to retrieve DPI scale for the current screen
+    private float GetDpiScale()
+    {
+        // Get DPI scale (e.g., 1.25 for 125% scaling, 1.5 for 150% scaling)
+        using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
+        {
+            return g.DpiX / 96f; // Standard DPI is 96, so this gives the scaling factor.
+        }
+    }
+
     // Event handler for the mouse wheel
     private void GlobalMouseHook_MouseWheel(object? sender, MouseEventArgs e)
     {
-        if (e.Y >= screenHeight - _edgeThreshold)
+        if (e.Y >= screenHeight - _edgeThreshold_dpi_scaled)
         {
             // Convert delta to number of notches (120 per notch)
             int notchDelta = e.Delta / 120;
@@ -82,15 +103,5 @@ public class MainModel : IDisposable
     {
         // Unhook the mouse hook when the window is closed
         _globalMouseHook.Dispose();
-    }
-
-    // Get DPI scale factor (e.g., 1.0 for 100%, 1.25 for 125%, etc.)
-    private float GetDpiScale()
-    {
-        using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
-        {
-            // Get the DPI scale for the primary monitor (can be adjusted per screen if necessary)
-            return g.DpiX / 96.0f; // 96 DPI is the default DPI (100%)
-        }
     }
 }

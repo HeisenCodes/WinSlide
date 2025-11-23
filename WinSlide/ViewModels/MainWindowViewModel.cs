@@ -39,10 +39,10 @@ namespace WinSlide.ViewModels
 
         public int EdgeThreshold
         {
-            get => model._edgeThreshold;
+            get => model.EdgeThreshold;
             set
             {
-                model._edgeThreshold = value;
+                model.EdgeThreshold = value;
                 OnPropertyChanged();
             }
         }
@@ -70,12 +70,7 @@ namespace WinSlide.ViewModels
 
             string path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
 
-            // Write atomically: prevents corrupted files
-            //string tempPath = path + ".tmp";
-
             File.WriteAllText(path, json, Encoding.UTF8);
-            //File.Copy(tempPath, path, overwrite: true);
-            //File.Delete(tempPath);
         }
     }
 }
