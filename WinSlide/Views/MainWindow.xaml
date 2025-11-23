@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="WinSlide" Height="405" Width="500" 
         ResizeMode="NoResize"
-        Icon="/Icons/icon.ico">
+        Icon="/Icons/icon.ico" >
 
     <Window.Resources>
         <c:EnumToBoolConverter x:Key="enumToBooleanConverter"/>
@@ -27,9 +27,9 @@
         <GroupBox Header="How to Use:">
             <TextBlock Margin="10">
                 • Add multiple desktop enviornments.<LineBreak/>
-                • Move your cursor to the <Bold>bottom edge</Bold> of your screen.<LineBreak/>
+                • Move your cursor to the bottom edge of your screen.<LineBreak/>
                 • Scroll up or down using your mouse.<LineBreak/>
-                • The software will switch to the <Bold>next virtual desktop</Bold> in the direction you scroll.
+                • The software will switch to the next virtual desktop in the direction you scroll.
             </TextBlock>
         </GroupBox>
 
@@ -58,25 +58,16 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Pixels"/>
+                <TextBlock Grid.Column="0" Text="Pixels" VerticalAlignment="Center"/>
 
-                <Slider Grid.Column ="1" Value="{Binding EdgeThreshold}" Minimum="1" Maximum="50" Margin="30,0"/>
+                <Slider Grid.Column ="1" Value="{Binding EdgeThreshold}" Minimum="1" Maximum="50" Margin="30,0" VerticalAlignment="Center"/>
 
-                <TextBlock Grid.Column="2" Text="{Binding EdgeThreshold}" HorizontalAlignment="Center" Margin="0,0,20,0"/>
+                <TextBlock Grid.Column="2" Text="{Binding EdgeThreshold}" HorizontalAlignment="Center" Margin="0,0,20,0" VerticalAlignment="Center"/>
             </Grid>
         </GroupBox>
 
         <GroupBox Grid.Row="3" Header="Startup:" Margin="0,20,0,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <CheckBox Grid.Column="0" Margin="20,10,10,10" IsChecked="{Binding StartOnStartup}"/>
-                <TextBlock Grid.Column="1" Margin="20,10,10,10" Text="Launch WinSlide on system start."/>
-
-            </Grid>
+            <CheckBox Grid.Column="0" Margin="20,10,10,10" IsChecked="{Binding StartOnStartup}" Content="     Launch WinSlide on system start."/>
         </GroupBox>
         
     </Grid>
