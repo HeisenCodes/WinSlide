@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
 	<LangVersion>preview</LangVersion>
 	<StartupObject>WinSlide.App</StartupObject>
-	<Platforms>AnyCPU;x86</Platforms>
+	<Platforms>x64;x86</Platforms>
 	<InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.Extensions.Configuration.Binder.SourceGeneration</InterceptorsNamespaces>
 	<ApplicationIcon>Icons\icon.ico</ApplicationIcon>
 	<Authors>Heisen</Authors>
@@ -39,17 +39,22 @@
     <Resource Include="Icons\icon.ico" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="AutoItX3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="AutoItX3_x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<!-- Common appsettings.json file, copied in all builds -->
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+
+		<!-- Copy AutoItX3.dll only when building for x86 -->
+		<None Update="AutoItX3.dll" Condition="'$(PlatformTarget)' == 'x86'">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+
+		<!-- Copy AutoItX3_x64.dll only when building for x64 -->
+		<None Update="AutoItX3_x64.dll" Condition="'$(PlatformTarget)' == 'x64'">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
   
 
