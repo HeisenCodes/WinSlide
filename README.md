@@ -6,7 +6,7 @@ Easily navigate between virtual desktops without needing to use keyboard shortcu
 
 
 
-# Libraries Used
+# External Libraries Used
 
 [AutoItX .NET Assembly](https://www.autoitscript.com/forum/topic/177167-using-autoitx-from-c-net/) - Used to send Windows virtual desktop switching key commands.
 
@@ -19,7 +19,7 @@ Easily navigate between virtual desktops without needing to use keyboard shortcu
 ### **Installation**
 
 1. Download the latest release from the *Releases* section.
-2. Extract and run the executable — no installer required.
+2. Extract and run the executable, no installer required.
 
 ### **Usage**
 
@@ -27,8 +27,8 @@ Easily navigate between virtual desktops without needing to use keyboard shortcu
 * Click the tray icon to open the **GUI** window.
 * Adjust:
 
-  * **Edge Threshold** — distance in pixels from the bottom edge.
-  * **Scroll Sensitivity** — scroll amount required to trigger a switch.
+  * **Edge Threshold** - distance in pixels from the bottom edge.
+  * **Scroll Sensitivity** - scroll amount required to trigger a switch.
 
 ### **Uninstall**
 
